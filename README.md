@@ -1,12 +1,45 @@
-The basic calculator is a project created for use on the Terasic DE-10 Standard board.
+# Basic Calculator Project
 
-This is meant to make use of an ALU circuit to perform common mathematical operations (addition, subtraction, multiplication, and division) utilizing user inputs. The result is displayed to the user in both binary and integer forms.
+The **Basic Calculator** is a project created for use on the **Terasic DE-10 Standard board**. It utilizes an ALU circuit to perform common mathematical operations (addition, subtraction, multiplication, and division) based on user inputs. The result is displayed in both binary and integer formats.
 
-Here are the circuits, inputs, and outputs that this board implements:
-  - ALU circuit that contains logic for either an adder, subtractor, multiplier, or divider (chosen using a two-bit selector) taking in two 4-bit inputs for calculation
-  - BCD to 7-segment display decoder circuit that contains logic regarding what segments to turn on depending on the digit
-  - 10 input switches (4 switches each for two 4-bit inputs, 2 switches for the two-bit operator)
-  - 1 input clock for the ALU to be a synchronous process
-  - 1 input key button for confirming calculations
-  - 2 output 7-segment displays for displaying calculation results from 0-99
-  - 10 output LED lights for displaying calculation results and error codes in binary
+## Overview
+
+This project demonstrates the implementation of digital arithmetic operations using an ALU and the display of results through 7-segment displays and LED lights.
+
+## Components and Implementation
+
+- **ALU Circuit**
+  - Implements logic for an adder, subtractor, multiplier, or divider.
+  - The operation is selected using a two-bit operator.
+  - Accepts two 4-bit inputs for the calculation.
+  - Uses behavioral modeling.
+  - Represents a multiplexer.
+
+- **BCD-to-7-Segment Display Decoder**
+  - Converts a BCD digit into signals for a 7-segment display.
+  - Determines which segments to activate based on the input digit.
+  - Uses dataflow modeling.
+
+ - **Top Calculator Entity**
+  - Establishes ports that will be assigned pins for circuit functionality.
+  - Creates 1 ALU and 2 BCD-to-7-Segment Display Decoders (for display of each digit).
+  - Holds logic necessary for the circuits to work together (converting inputs and ouputs).
+  - Uses structural modeling.
+
+## Board Interfaces
+
+- **Inputs**
+  - **10 Switches:**  
+    - 4 switches (6-9) for the first 4-bit operand.
+    - 4 switches (2-5) for the second 4-bit operand.
+    - 2 switches (0-1) for selecting the two-bit operator.
+  - **1 Clock:**  
+    - Provides the clock signal for the synchronous ALU process.
+  - **1 Key Button:**  
+    - Used to confirm and latch the calculation result.
+
+- **Outputs**
+  - **2 7-Segment Displays:**  
+    - Display calculation results in the range of 0–99 (integer form).
+  - **10 LED Lights:**  
+    - Show the calculation results and error codes in binary form.
