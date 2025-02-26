@@ -33,6 +33,10 @@ ENTITY calculator_top IS
         tens_display      : 
 		      OUT STD_LOGIC_VECTOR(
 				    6 DOWNTO 0
+					 );
+		  hundreds_display  :
+				OUT STD_LOGIC_VECTOR(
+					 6 DOWNTO 0
 					 )
     );
 END calculator_top;
@@ -49,7 +53,7 @@ ARCHITECTURE Structural OF calculator_top IS
 				);
     SIGNAL alu_output_int : 
 	     INTEGER RANGE 0 TO 1023;
-    SIGNAL tens_digit, ones_digit : 
+    SIGNAL hundreds_digit, tens_digit, ones_digit : 
 	     STD_LOGIC_VECTOR(
 		      3 DOWNTO 0
 				);
@@ -83,45 +87,66 @@ BEGIN
 					 )
 				);
 
-
     -- A process to convert the ALU result to
 	 -- BCD is performed here.
     PROCESS(alu_output_int)
 	 
-		  -- Two integer variables is defined here to handle
-		  -- both digits of the ALU result (tens and ones).
+		  -- Three integer variables is defined here to handle
+		  -- all digits of the ALU result (hundreds, tens, and ones).
         VARIABLE A : INTEGER;
         VARIABLE B : INTEGER;
+		  VARIABLE C : INTEGER;
     BEGIN
 	 
-	     -- If the ALU result is valid (0-99), divide the
-		  -- result to take in the tens digit and do a
-		  -- modulus operation to take in the ones digit.
+	     -- If the ALU result is valid (0-999), divide the
+		  -- result to take in the hundreds digit, divide again
+		  -- and do a modulus operation to take in the tens digit, 
+		  -- and do a modulus operation to take in the ones digit.
 		  -- Each of these digits is to undergo BCD conversion
 		  -- when input into the digit signals.
-        IF (alu_output_int >= 0) AND (alu_output_int <= 99) THEN
-            A := alu_output_int / 10;
-            B := alu_output_int MOD 10;
-            tens_digit <= 
+        IF (alu_output_int >= 0) AND (alu_output_int <= 999) THEN
+            A := alu_output_int / 100;
+            B := (alu_output_int / 10) MOD 10;
+				C := alu_output_int MOD 10;
+				
+				hundreds_digit <= 
 				    STD_LOGIC_VECTOR(
 					     TO_UNSIGNED(
 						      A, 4
 								)
 						  );
-            ones_digit <= 
+						  
+            tens_digit 		<= 
 				    STD_LOGIC_VECTOR(
 					     TO_UNSIGNED(
 						      B, 4
 								)
 						  );
 						  
+            ones_digit 		<= 
+				    STD_LOGIC_VECTOR(
+					     TO_UNSIGNED(
+						      C, 4
+								)
+						  );
+						  
 		  -- In the case that the ALU result is out of
-		  -- range (over 99), input the code 99.
+		  -- range (over 999), input the error code 999.
         ELSE
-            tens_digit <= "1111";
-            ones_digit <= "1111";
+				hundreds_digit <= "1111";
+            tens_digit 		<= "1111";
+            ones_digit 		<= "1111";
         END IF;
     END PROCESS;
+	 
+	 -- A BCD to 7-segment display decoder is instantiated
+	 -- to take in the hundreds digit and display it.
+    U_BCD_Hundreds: ENTITY WORK.bcd_7segment
+        PORT MAP 
+		  (
+            bcd_in => hundreds_digit,
+            seven_segment_out => hundreds_display
+        );
 
     -- A BCD to 7-segment display decoder is instantiated
 	 -- to take in the tens digit and display it.

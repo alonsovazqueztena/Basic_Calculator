@@ -35,8 +35,8 @@ ARCHITECTURE Behavioral OF alu IS
 
 	 -- These are error codes for division by zero 
 	 -- and unexpected results.
-	 CONSTANT DIVISION_ERROR: INTEGER := 250;
-	 CONSTANT DEFAULT_ERROR : INTEGER := 251;
+	 CONSTANT DIVISION_ERROR: INTEGER := 997;
+	 CONSTANT DEFAULT_ERROR : INTEGER := 998;
 		
     -- The operands and the operator are defined here to
 	 -- be signals for the logic to work with.
@@ -101,7 +101,7 @@ BEGIN
 					 -- In the case that the math expression results in
 					 -- a negative number, output an error code.
                 IF TO_INTEGER(input_A) < TO_INTEGER(input_B) THEN
-                    result_int <= 249;
+                    result_int <= 996;
 						  
 					 -- This is the valid subtraction case.
                 ELSE
