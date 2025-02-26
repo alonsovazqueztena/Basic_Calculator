@@ -19,28 +19,41 @@ ENTITY bcd_7segment IS
 	);
 END bcd_7segment;
 
--- Here, we create a data-flow architecture that utilizes
--- Boolean expressions as the determination of the segments.
-ARCHITECTURE Dataflow OF bcd_7segment IS
+-- Here, we create a hybrid architecture that utilizes
+-- Boolean expressions as the determination of the segments
+-- and hardcodes a single segment.
+ARCHITECTURE Hybrid OF bcd_7segment IS
 BEGIN
 	
-	-- A process is started to where every variable is assigned
-	-- one bit of the input.
+	-- A process is started to where every variable is one bit.
 	PROCESS(bcd_in)
-		VARIABLE A : STD_LOGIC := bcd_in(3);
-		VARIABLE B : STD_LOGIC := bcd_in(2);
-		VARIABLE C : STD_LOGIC := bcd_in(1);
-		VARIABLE D : STD_LOGIC := bcd_in(0);
-		
-	-- Every boolean expression for each of the seven segments
-	-- are handled here.
+	
+		VARIABLE A : STD_LOGIC;
+		VARIABLE B : STD_LOGIC;
+		VARIABLE C : STD_LOGIC;
+		VARIABLE D : STD_LOGIC;
 	BEGIN
-		seven_segment_out(0) <= NOT ((NOT B AND NOT D) OR C OR (B AND D) OR A);
-		seven_segment_out(1) <= NOT (NOT B OR (NOT C AND NOT D) OR (C AND D));
-		seven_segment_out(2) <= NOT (NOT C OR D OR B);
-		seven_segment_out(3) <= NOT ((NOT B AND NOT D) OR (NOT B AND C) OR (B AND NOT C AND D) OR (C AND NOT D) OR A);
-		seven_segment_out(4) <= NOT ((NOT B AND NOT D) OR (C AND NOT D));
-		seven_segment_out(5) <= NOT ((NOT C AND NOT D) OR (B AND NOT C) OR (B AND NOT D) OR A);
-		seven_segment_out(6) <= NOT ((NOT B AND C) OR (B AND NOT C) OR A OR (B AND NOT D));
+	
+		-- If the input is a negative sign, display it.
+		IF bcd_in = "1010" THEN
+			seven_segment_out <= "0111111";
+		ELSE
+			
+			-- Assign each variable to carry 1 bit of the input.
+			A := bcd_in(3);
+			B := bcd_in(2);
+			C := bcd_in(1);
+			D := bcd_in(0);
+			
+			-- Every boolean expression for each of the seven segments
+			-- are handled here.
+			seven_segment_out(0) <= NOT ((NOT B AND NOT D) OR C OR (B AND D) OR A);
+			seven_segment_out(1) <= NOT (NOT B OR (NOT C AND NOT D) OR (C AND D));
+			seven_segment_out(2) <= NOT (NOT C OR D OR B);
+			seven_segment_out(3) <= NOT ((NOT B AND NOT D) OR (NOT B AND C) OR (B AND NOT C AND D) OR (C AND NOT D) OR A);
+			seven_segment_out(4) <= NOT ((NOT B AND NOT D) OR (C AND NOT D));
+			seven_segment_out(5) <= NOT ((NOT C AND NOT D) OR (B AND NOT C) OR (B AND NOT D) OR A);
+			seven_segment_out(6) <= NOT ((NOT B AND C) OR (B AND NOT C) OR A OR (B AND NOT D));
+		END IF;
 	END PROCESS;
-END Dataflow;
+END Hybrid;

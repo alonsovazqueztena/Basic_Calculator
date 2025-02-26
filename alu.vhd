@@ -54,11 +54,11 @@ ARCHITECTURE Behavioral OF alu IS
 		  );
     
     -- The computed result has signals here that
-	 -- handled it.
+	 -- handle it.
     SIGNAL result_int   : 
-	     INTEGER RANGE 0 TO 1023;
+	     INTEGER RANGE -15 TO 999;
     SIGNAL alu_register : 
-	     INTEGER RANGE 0 TO 1023;
+	     INTEGER RANGE -15 TO 999;
 BEGIN
 
     -- The user inputs are mapped here to the
@@ -69,12 +69,14 @@ BEGIN
 				    3 DOWNTO 0
 				)
 		  );
+		  
     input_B <= 
 	     UNSIGNED(
 		      user_inputs(
 				    7 DOWNTO 4
 				)
 		  );
+		  
     operator  <= 
 		  user_inputs(
 		      9 DOWNTO 8
@@ -96,18 +98,10 @@ BEGIN
 				        TO_INTEGER(input_A) + TO_INTEGER(input_B);
 					 
 				-- This is the case for subtraction: A - B.
-            WHEN "01" =>
-				
-					 -- In the case that the math expression results in
-					 -- a negative number, output an error code.
-                IF TO_INTEGER(input_A) < TO_INTEGER(input_B) THEN
-                    result_int <= 996;
-						  
-					 -- This is the valid subtraction case.
-                ELSE
-                    result_int <= TO_INTEGER(input_A) - TO_INTEGER(input_B);
-                END IF;
-					 
+            WHEN "01" =>       
+                result_int <= 
+							TO_INTEGER(input_A) - TO_INTEGER(input_B);
+                
 				-- This is the case for multiplication: A * B.
             WHEN "10" =>
                 result_int <= TO_INTEGER(input_A) * TO_INTEGER(input_B);
@@ -156,7 +150,7 @@ BEGIN
     -- The ALU result is output as a 10-bit binary number.
     binary_outputs <= 
 	     STD_LOGIC_VECTOR(
-	         to_unsigned(
+	         TO_SIGNED(
 		          alu_register, 10
 				)
 		  );

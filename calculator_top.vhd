@@ -52,7 +52,7 @@ ARCHITECTURE Structural OF calculator_top IS
 		      9 DOWNTO 0
 				);
     SIGNAL alu_output_int : 
-	     INTEGER RANGE 0 TO 1023;
+	     INTEGER RANGE -15 TO 999;
     SIGNAL hundreds_digit, tens_digit, ones_digit : 
 	     STD_LOGIC_VECTOR(
 		      3 DOWNTO 0
@@ -74,7 +74,7 @@ BEGIN
 	 -- binary result signal to take in.
     alu_output_int <= 
 	     TO_INTEGER(
-		      UNSIGNED(
+		      SIGNED(
 				    alu_output_bin
 				)
 		  );
@@ -82,7 +82,7 @@ BEGIN
 	 -- The ALU result is driven through the LED output.
 	 binary_outputs <= 
 	     STD_LOGIC_VECTOR(
-		      TO_UNSIGNED(
+		      TO_SIGNED(
 				    alu_output_int, 10
 					 )
 				);
@@ -93,12 +93,13 @@ BEGIN
 	 
 		  -- Three integer variables is defined here to handle
 		  -- all digits of the ALU result (hundreds, tens, and ones).
-        VARIABLE A : INTEGER;
-        VARIABLE B : INTEGER;
-		  VARIABLE C : INTEGER;
+        VARIABLE A     : INTEGER;
+        VARIABLE B     : INTEGER;
+		  VARIABLE C     : INTEGER;
+		  VARIABLE ABS_D : INTEGER;
     BEGIN
 	 
-	     -- If the ALU result is valid (0-999), divide the
+	     -- If the ALU result is positive 0-999, divide the
 		  -- result to take in the hundreds digit, divide again
 		  -- and do a modulus operation to take in the tens digit, 
 		  -- and do a modulus operation to take in the ones digit.
@@ -130,8 +131,31 @@ BEGIN
 								)
 						  );
 						  
+		  -- If the input is negative (-15 to 0), take an absolute value of
+		  -- the input and separate each of the two digits by
+		  -- dividing and doing a modulus operation. Send in the code
+		  -- for a negative sign to the hundreds digit.
+		  ELSIF (alu_output_int < 0) AND (alu_output_int >= -15) THEN
+				ABS_D := ABS(alu_output_int);
+				hundreds_digit <= "1010";
+				B := ABS_D / 10;
+				C := ABS_D MOD 10;
+				tens_digit 		<= 
+				    STD_LOGIC_VECTOR(
+					     TO_UNSIGNED(
+						      B, 4
+								)
+						  );
+						  
+            ones_digit 		<= 
+				    STD_LOGIC_VECTOR(
+					     TO_UNSIGNED(
+						      C, 4
+								)
+						  );
+				
 		  -- In the case that the ALU result is out of
-		  -- range (over 999), input the error code 999.
+		  -- range (over 999 or under -15), input the error code 999.
         ELSE
 				hundreds_digit <= "1111";
             tens_digit 		<= "1111";
