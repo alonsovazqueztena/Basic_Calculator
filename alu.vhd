@@ -33,6 +33,11 @@ END alu;
 -- handled here.
 ARCHITECTURE Behavioral OF alu IS
 
+	 -- These are error codes for division by zero 
+	 -- and unexpected results.
+	 CONSTANT DIVISION_ERROR: INTEGER := 250;
+	 CONSTANT DEFAULT_ERROR : INTEGER := 251;
+		
     -- The operands and the operator are defined here to
 	 -- be signals for the logic to work with.
     SIGNAL input_A: 
@@ -115,7 +120,7 @@ BEGIN
 					 -- In the case that the math expression results in
 					 -- a division by zero, output an error code.
                 IF input_B = 0 THEN
-                    result_int <= 250;
+                    result_int <= DIVISION_ERROR;
 						  
 					 -- This is the valid division case.
                 ELSE
@@ -124,7 +129,7 @@ BEGIN
 					 
 				-- For any other unexpected case, output an error code.
             WHEN OTHERS =>
-                result_int <= 251;
+                result_int <= DEFAULT_ERROR;
         END CASE;
     END PROCESS;
 
