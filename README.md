@@ -19,8 +19,8 @@ This project demonstrates the implementation of digital arithmetic operations us
   - Converts a BCD digit into signals for a 7-segment display.
   - Determines which segments to activate based on the input digit.
   - Uses dataflow modeling.
-
- - **Top Calculator Entity**
+ 
+- **Top Calculator Entity**
   - Establishes ports that will be assigned pins for circuit functionality.
   - Creates 1 ALU and 2 BCD-to-7-Segment Display Decoders (for display of each digit).
   - Holds logic necessary for the circuits to work together (converting inputs and ouputs).
