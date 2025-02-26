@@ -1,6 +1,6 @@
 -- Alonso Vazquez Tena
--- February 15, 2025
--- Milestone 2: Embedded Application Release 1
+-- February 26, 2025
+-- Milestone 3: Embedded Application Release 2
 -- This was provided by an in-class activity (Activity 2).
 
 LIBRARY IEEE;
