@@ -21,7 +21,7 @@ END bcd_7segment;
 
 -- Here, we create a hybrid architecture that utilizes
 -- Boolean expressions as the determination of the segments
--- and hardcodes a single segment.
+-- and hardcodes segments due to codes.
 ARCHITECTURE Hybrid OF bcd_7segment IS
 BEGIN
 	
@@ -37,6 +37,8 @@ BEGIN
 		-- If the input is a negative sign, display it.
 		IF bcd_in = "1010" THEN
 			seven_segment_out <= "0111111";
+			
+		-- If the input is a decimal, display an underbar.
 		ELSIF bcd_in = "1011" THEN
 			seven_segment_out <= "1110111";
 		ELSE

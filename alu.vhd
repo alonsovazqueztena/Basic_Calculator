@@ -35,8 +35,8 @@ ARCHITECTURE Behavioral OF alu IS
 
 	 -- These are error codes for division by zero 
 	 -- and unexpected results.
-	 CONSTANT DIVISION_ERROR: INTEGER := 997;
-	 CONSTANT DEFAULT_ERROR : INTEGER := 998;
+	 CONSTANT DIVISION_ERROR: INTEGER := 250;
+	 CONSTANT DEFAULT_ERROR : INTEGER := 251;
 		
     -- The operands and the operator are defined here to
 	 -- be signals for the logic to work with.
@@ -54,7 +54,7 @@ ARCHITECTURE Behavioral OF alu IS
 		  );
     
     -- The computed result has signals here that
-	 -- handle it.
+	 -- handle it. Results vary from -15 to 1500.
     SIGNAL result_int   : 
 	     INTEGER RANGE -15 TO 1500;
     SIGNAL alu_register : 
@@ -148,6 +148,7 @@ BEGIN
     END PROCESS;
 
     -- The ALU result is output as a 12-bit binary number.
+	 -- This number is prioritized to be output as an integer.
     binary_outputs <= 
 	     STD_LOGIC_VECTOR(
 	         TO_SIGNED(
