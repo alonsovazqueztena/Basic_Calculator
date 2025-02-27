@@ -22,7 +22,7 @@ ENTITY alu IS
 				    );
         binary_outputs  : 
 		      OUT STD_LOGIC_VECTOR(
-				    9 DOWNTO 0
+				    11 DOWNTO 0
 				    ) 
     );
 END alu;
@@ -56,9 +56,9 @@ ARCHITECTURE Behavioral OF alu IS
     -- The computed result has signals here that
 	 -- handle it.
     SIGNAL result_int   : 
-	     INTEGER RANGE -15 TO 999;
+	     INTEGER RANGE -15 TO 1500;
     SIGNAL alu_register : 
-	     INTEGER RANGE -15 TO 999;
+	     INTEGER RANGE -15 TO 1500;
 BEGIN
 
     -- The user inputs are mapped here to the
@@ -118,7 +118,7 @@ BEGIN
 						  
 					 -- This is the valid division case.
                 ELSE
-                    result_int <= TO_INTEGER(input_A) / TO_INTEGER(input_B);
+                    result_int <= (TO_INTEGER(input_A) * 100) / TO_INTEGER(input_B);
                 END IF;
 					 
 				-- For any other unexpected case, output an error code.
@@ -147,11 +147,11 @@ BEGIN
         END IF;
     END PROCESS;
 
-    -- The ALU result is output as a 10-bit binary number.
+    -- The ALU result is output as a 12-bit binary number.
     binary_outputs <= 
 	     STD_LOGIC_VECTOR(
 	         TO_SIGNED(
-		          alu_register, 10
+		          alu_register, 12
 				)
 		  );
 

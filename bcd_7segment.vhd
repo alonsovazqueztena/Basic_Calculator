@@ -37,6 +37,8 @@ BEGIN
 		-- If the input is a negative sign, display it.
 		IF bcd_in = "1010" THEN
 			seven_segment_out <= "0111111";
+		ELSIF bcd_in = "1011" THEN
+			seven_segment_out <= "1110111";
 		ELSE
 			
 			-- Assign each variable to carry 1 bit of the input.
