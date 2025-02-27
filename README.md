@@ -18,11 +18,12 @@ This project demonstrates the implementation of digital arithmetic operations us
 - **BCD-to-7-Segment Display Decoder**
   - Converts a BCD digit into signals for a 7-segment display.
   - Determines which segments to activate based on the input digit.
-  - Uses dataflow modeling.
+  - Displays signs for unique numbers like fractions and negative numbers.
+  - Uses hybrid modeling (both behavioral and dataflow).
  
 - **Top Calculator Entity**
   - Establishes ports that will be assigned pins for circuit functionality.
-  - Creates 1 ALU and 2 BCD-to-7-Segment Display Decoders (for display of each digit).
+  - Creates 1 ALU and 5 BCD-to-7-Segment Display Decoders (for display of each digit or sign).
   - Holds logic necessary for the circuits to work together (converting inputs and ouputs).
   - Uses structural modeling.
 
@@ -39,7 +40,9 @@ This project demonstrates the implementation of digital arithmetic operations us
     - Used to confirm and latch the calculation result.
 
 - **Outputs**
-  - **2 7-Segment Displays:**  
-    - Display calculation results in the range of 0–99 (integer form).
+  - **5 7-Segment Displays:**  
+    - Display calculation results in the range of -15 to 1500 (integer form).
+    - Displays special signs (negative, fraction).
   - **10 LED Lights:**  
     - Show the calculation results and error codes in binary form.
+    - Handles values from 0 to 1023.
