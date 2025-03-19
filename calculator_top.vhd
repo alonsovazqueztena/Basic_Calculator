@@ -81,7 +81,7 @@ BEGIN
 	 
 		  -- Variables are defined here to handle
 		  -- digits of the ALU result.
-		VARIABLE A, B, C, D, E, WHOLE, FRACTION : INTEGER;
+		VARIABLE A, B, C, D, E, F, WHOLE, FRACTION : INTEGER;
 	BEGIN
 	 
 	     -- In the case that division was performed, undo
@@ -142,20 +142,20 @@ BEGIN
 		  -- and do a modulus operation to take in the ones digit.
 		  -- Each of these digits is to undergo BCD conversion
 		  -- when input into the digit signals.
-		ELSIF (alu_output_int >= 0) AND (alu_output_int <= 999) THEN
-			A := alu_output_int / 100;
-			B := (alu_output_int / 10) MOD 10;
-			C := alu_output_int MOD 10;
-				
-			hundreds_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
-						  
-			tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
-						  
-			ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
-						  
-				-- These digits are not applicable.
-			whole_tens_digit <= "0000";
-			whole_ones_digit <= "0000";
+		ELSIF (alu_output_int >= 0) AND (alu_output_int <= 999999) THEN
+			A := alu_output_int / 100000;
+			B := (alu_output_int / 10000) MOD 10;
+			C := (alu_output_int / 1000) MOD 10;
+			D := (alu_output_int / 100) MOD 10;
+			E := (alu_output_int / 10) MOD 10;
+			F := alu_output_int MOD 10;
+			
+			hundred_thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+			ten_thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+			thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
+			hundreds_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(D, 4));
+			tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(E, 4));
+			ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(F, 4));
 						  
 		  -- If the input is negative (-15 to 0), take an absolute value of
 		  -- the input and separate each of the two digits by
