@@ -17,6 +17,7 @@ ENTITY calculator_top IS
 		clock : IN STD_LOGIC;
 		confirm : IN STD_LOGIC;
 		load : IN STD_LOGIC;
+		reset : IN STD_LOGIC;
       user_inputs : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
 		binary_outputs : OUT STD_LOGIC_VECTOR(19 DOWNTO 0);
       ones_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
@@ -124,16 +125,16 @@ BEGIN
 				-- whole and fraction components of the result,
 				-- pass in a code that will display an underbar
 				-- in substitution of a decimal point.
-				hundreds_digit <= "1011";
+			hundreds_digit <= "1011";
 				
 				-- Using the fraction component of the result,
 				-- divide by 10 to get the tenths digit and perform
 				-- a modulus operation to get the hundredths digit.
-				D := FRACTION / 10;
-				E := FRACTION MOD 10;
+			D := FRACTION / 10;
+			E := FRACTION MOD 10;
 				
-				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(D, 4));
-				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(E, 4));
+			tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(D, 4));
+			ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(E, 4));
 	 
 	     -- Only occurs if the operation is not division.
 		  -- If the ALU result is positive 0-999, divide the
@@ -160,24 +161,60 @@ BEGIN
 		  -- If the input is negative (-15 to 0), take an absolute value of
 		  -- the input and separate each of the two digits by
 		  -- dividing and doing a modulus operation.
-		ELSIF (alu_output_int < 0) AND (alu_output_int >= -15) THEN
+		ELSIF (alu_output_int < 0) AND (alu_output_int >= -99999) THEN
 		  
 			D := ABS(alu_output_int);
+			
+			IF D >= 10000 THEN
+				hundred_thousands_digit <= "1010";
+				A := D / 10000;
+				B := (D / 1000) MOD 10;
+				C := (D / 100) MOD 10;
+				E := (D / 10) MOD 10;
+				F := D MOD 10;
 				
-				-- This passes in a code to display a negative sign.
-			hundreds_digit <= "1010";
+				ten_thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+				hundreds_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
+				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(E, 4));
+				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(F, 4));
 				
-			B := D / 10;
-			C := D MOD 10;
+			ELSIF D >= 1000 THEN
+				ten_thousands_digit <= "1010";
+				A := D / 1000;
+				B := (D / 100) MOD 10;
+				C := (D / 10) MOD 10;
+				E := D MOD 10;
 				
-			tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
-						  
-			ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
-						  
-				-- These digits are not applicable.
-			whole_tens_digit <= "0000";
-			whole_ones_digit <= "0000";
+				thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				hundreds_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
+				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(E, 4));
 				
+			ELSIF D >= 100 THEN
+				thousands_digit <= "1010";
+				A := D / 100;
+				B := (D / 10) MOD 10;
+				C := D MOD 10;
+				
+				hundreds_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
+				
+			ELSIF D >= 10 THEN
+				hundreds_digit <= "1010";
+				A := D / 10;
+				B := D MOD 10;
+				
+				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+				
+			ELSE
+				tens_digit <= "1010";
+				
+				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(D, 4));
+			END IF;
+							
 		  -- Input the error code 99999 as an out-of-range error.
 		ELSE
 			hundred_thousands_digit <= "1111";
