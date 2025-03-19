@@ -91,22 +91,33 @@ BEGIN
 		IF op_code = "0000000011" THEN
 			WHOLE := alu_output_int / 100;
 			FRACTION := alu_output_int MOD 100;
+			
+			IF WHOLE < 100 THEN
+				hundred_thousands_digit <= "0000";
+				A := WHOLE / 10;
+				B := WHOLE MOD 10;
+				ten_thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
 				
 				-- If the whole component of the result is less than 10,
 				-- mark the tens digit as 0, and only display the ones digit.
 			IF WHOLE < 10 THEN
-				whole_tens_digit <= "0000";
+				hundred_thousands_digit <= "0000";
+				ten_thousands_digit <= "0000";		
 				A := WHOLE;
-				whole_ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
 						  
 			   -- If the whole component of the result is over 10,
 				-- divide by 10 to extract the tens digit and perform a
 				-- modulus operation to extract the ones digit.
 			ELSE
-				A := WHOLE / 10;
-				B := WHOLE MOD 10;
-				whole_tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
-				whole_ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+				A := WHOLE / 100; 
+				B := (WHOLE MOD 100) / 10;
+				C := WHOLE MOD 10;
+			
+				hundred_thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				ten_thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+				thousands_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
 			END IF;
 				
 				-- In place of the position in between the
@@ -118,12 +129,11 @@ BEGIN
 				-- Using the fraction component of the result,
 				-- divide by 10 to get the tenths digit and perform
 				-- a modulus operation to get the hundredths digit.
-				C := FRACTION / 10;
-				D := FRACTION MOD 10;
+				D := FRACTION / 10;
+				E := FRACTION MOD 10;
 				
-				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
-						  
-				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(D, 4));
+				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(D, 4));
+				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(E, 4));
 	 
 	     -- Only occurs if the operation is not division.
 		  -- If the ALU result is positive 0-999, divide the
