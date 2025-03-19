@@ -12,41 +12,20 @@ USE IEEE.NUMERIC_STD.ALL;
 -- inputs, binary outputs, and
 -- digit displays.
 ENTITY calculator_top IS
-    PORT 
-	 (
-        clock             	  : 
-		      IN  STD_LOGIC;
-        confirm           	  : 
-		      IN  STD_LOGIC;
-        user_inputs       	  : 
-		      IN  STD_LOGIC_VECTOR(
-				    9 DOWNTO 0
-					 );
-		  binary_outputs 	  	  : 
-		      OUT STD_LOGIC_VECTOR(
-				    9 DOWNTO 0
-					 );
-        ones_display      	  : 
-		      OUT STD_LOGIC_VECTOR(
-				    6 DOWNTO 0
-					 );
-        tens_display      	  : 
-		      OUT STD_LOGIC_VECTOR(
-				    6 DOWNTO 0
-					 );
-		  hundreds_display  	  :
-				OUT STD_LOGIC_VECTOR(
-					 6 DOWNTO 0
-					 );
-		  whole_ones_display    :
-				OUT STD_LOGIC_VECTOR(
-					 6 DOWNTO 0
-					 );
-		  whole_tens_display:
-				OUT STD_LOGIC_VECTOR(
-					 6 DOWNTO 0
-					 )
-    );
+	PORT 
+	(
+		clock : IN STD_LOGIC;
+		confirm : IN STD_LOGIC;
+		load : IN STD_LOGIC;
+      user_inputs : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		binary_outputs : OUT STD_LOGIC_VECTOR(19 DOWNTO 0);
+      ones_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
+      tens_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
+		hundreds_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
+		thousands_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
+		ten_thousands_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
+		hundred_thousands_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
+	);
 END calculator_top;
 
 -- A structural architecture is defined here 
@@ -55,108 +34,80 @@ END calculator_top;
 -- of the ALU result. The logic of the top-level
 -- module is handled here.
 ARCHITECTURE Structural OF calculator_top IS
-    SIGNAL alu_output_bin : 
-	     STD_LOGIC_VECTOR(
-		      11 DOWNTO 0
-				);
-    SIGNAL alu_output_int : 
-	     INTEGER RANGE -15 TO 1500;
-    SIGNAL whole_tens_digit, whole_ones_digit, hundreds_digit, tens_digit, ones_digit : 
-	     STD_LOGIC_VECTOR(
-		      3 DOWNTO 0
-				);
-	 SIGNAL op_code :
-		  STD_LOGIC_VECTOR(
-				1 DOWNTO 0
-				);
+	SIGNAL op_a : STD_LOGIC_VECTOR(9 DOWNTO 0);
+	SIGNAL op_b : STD_LOGIC_VECTOR(9 DOWNTO 0);
+	SIGNAL op_code : STD_LOGIC_VECTOR(9 DOWNTO 0);
+	SIGNAL alu_output_bin : STD_LOGIC_VECTOR(19 DOWNTO 0);
+	SIGNAL alu_output_int : INTEGER RANGE -999999 TO 999999;
+	SIGNAL hundred_thousands_digit, ten_thousands_digit, thousands_digit, hundreds_digit, tens_digit, ones_digit : STD_LOGIC_VECTOR(3 DOWNTO 0);
 BEGIN
+
+	U_Input_Controller: ENTITY WORK.input_controller
+		PORT MAP
+		(
+			clock => clock,
+			load => load,
+			reset => reset,
+			user_data => user_inputs,
+			operand_a => op_a,
+			operand_b => op_b,
+			op_code => op_code
+		);
     -- An ALU is instantiated here. The inputs and outputs
 	 -- of the ALU are taken in by top-level module's inputs
 	 -- and the signal output.
-    U_ALU: ENTITY WORK.alu
-        PORT MAP 
-		  (
-            clock              => clock,
-            confirm            => confirm,
-            user_inputs        => user_inputs,
-            binary_outputs		 => alu_output_bin
-        );
+	U_ALU: ENTITY WORK.alu
+		PORT MAP 
+		(
+			clock => clock,
+         confirm => confirm,
+         operand_a => op_a,
+			operand_b => op_b,
+			op_code => op_code,
+         result_out => alu_output_bin
+      );
 
     -- The ALU result is converted to a signed integer for the
 	 -- binary result signal to take in.
-    alu_output_int <= 
-	     TO_INTEGER(
-		      SIGNED(
-				    alu_output_bin
-				)
-		  );
+	alu_output_int <= TO_INTEGER(SIGNED(alu_output_bin));
 	 
 	 -- The ALU result is driven through the LED output.
 	 -- Only integer values 0-1023 are correctly displayed.
-	 binary_outputs <= 
-	     STD_LOGIC_VECTOR(
-		      TO_SIGNED(
-				    alu_output_int, 10
-					 )
-				);
-				
-	 -- Take in the operation code to allow for operation
-	 -- specific logic.
-	 op_code <= user_inputs(9 DOWNTO 8);
+	binary_outputs <= STD_LOGIC_VECTOR(TO_SIGNED(alu_output_int, 20));
 
     -- A process to convert the ALU result to
 	 -- BCD is performed here.
-    PROCESS(alu_output_int, op_code)
+	PROCESS(alu_output_int, op_code)
 	 
 		  -- Variables are defined here to handle
 		  -- digits of the ALU result.
-        VARIABLE A        : INTEGER;
-        VARIABLE B        : INTEGER;
-		  VARIABLE C        : INTEGER;
-		  VARIABLE D        : INTEGER;
-		  VARIABLE WHOLE 	  : INTEGER;
-		  VARIABLE FRACTION : INTEGER;
-    BEGIN
+		VARIABLE A, B, C, D, E, WHOLE, FRACTION : INTEGER;
+	BEGIN
 	 
 	     -- In the case that division was performed, undo
 		  -- the multiplication to take in the whole component
 		  -- of the result and do a modulus operation to
 		  -- get the fraction component.
-		  IF op_code = "11" THEN
-				WHOLE    := alu_output_int / 100;
-				FRACTION := alu_output_int MOD 100;
+		IF op_code = "0000000011" THEN
+			WHOLE := alu_output_int / 100;
+			FRACTION := alu_output_int MOD 100;
 				
 				-- If the whole component of the result is less than 10,
 				-- mark the tens digit as 0, and only display the ones digit.
-				IF WHOLE < 10 THEN
-					whole_tens_digit <= "0000";
-					A := WHOLE;
-					whole_ones_digit <= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      A, 4
-								)
-						  );
+			IF WHOLE < 10 THEN
+				whole_tens_digit <= "0000";
+				A := WHOLE;
+				whole_ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
 						  
 			   -- If the whole component of the result is over 10,
 				-- divide by 10 to extract the tens digit and perform a
 				-- modulus operation to extract the ones digit.
-				ELSE
-					A := WHOLE / 10;
-					B := WHOLE MOD 10;
-					whole_tens_digit <= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      A, 4
-								)
-						  );
-					whole_ones_digit <= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      B, 4
-								)
-						  );
-				END IF;
+			ELSE
+				A := WHOLE / 10;
+				B := WHOLE MOD 10;
+				whole_tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
+				whole_ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
+			END IF;
 				
 				-- In place of the position in between the
 				-- whole and fraction components of the result,
@@ -170,19 +121,9 @@ BEGIN
 				C := FRACTION / 10;
 				D := FRACTION MOD 10;
 				
-				tens_digit <= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      C, 4
-								)
-						  );
+				tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
 						  
-				ones_digit <= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      D, 4
-								)
-						  );
+				ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(D, 4));
 	 
 	     -- Only occurs if the operation is not division.
 		  -- If the ALU result is positive 0-999, divide the
@@ -191,122 +132,105 @@ BEGIN
 		  -- and do a modulus operation to take in the ones digit.
 		  -- Each of these digits is to undergo BCD conversion
 		  -- when input into the digit signals.
-        ELSIF (alu_output_int >= 0) AND (alu_output_int <= 999) THEN
-            A := alu_output_int / 100;
-            B := (alu_output_int / 10) MOD 10;
-				C := alu_output_int MOD 10;
+		ELSIF (alu_output_int >= 0) AND (alu_output_int <= 999) THEN
+			A := alu_output_int / 100;
+			B := (alu_output_int / 10) MOD 10;
+			C := alu_output_int MOD 10;
 				
-				hundreds_digit <= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      A, 4
-								)
-						  );
+			hundreds_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(A, 4));
 						  
-            tens_digit 		<= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      B, 4
-								)
-						  );
+			tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
 						  
-            ones_digit 		<= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      C, 4
-								)
-						  );
+			ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
 						  
 				-- These digits are not applicable.
-				whole_tens_digit <= "0000";
-				whole_ones_digit <= "0000";
+			whole_tens_digit <= "0000";
+			whole_ones_digit <= "0000";
 						  
 		  -- If the input is negative (-15 to 0), take an absolute value of
 		  -- the input and separate each of the two digits by
 		  -- dividing and doing a modulus operation.
-		  ELSIF (alu_output_int < 0) AND (alu_output_int >= -15) THEN
+		ELSIF (alu_output_int < 0) AND (alu_output_int >= -15) THEN
 		  
-				D := ABS(alu_output_int);
+			D := ABS(alu_output_int);
 				
 				-- This passes in a code to display a negative sign.
-				hundreds_digit <= "1010";
+			hundreds_digit <= "1010";
 				
-				B := D / 10;
-				C := D MOD 10;
+			B := D / 10;
+			C := D MOD 10;
 				
-				tens_digit 		<= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      B, 4
-								)
-						  );
+			tens_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(B, 4));
 						  
-            ones_digit 		<= 
-				    STD_LOGIC_VECTOR(
-					     TO_UNSIGNED(
-						      C, 4
-								)
-						  );
+			ones_digit <= STD_LOGIC_VECTOR(TO_UNSIGNED(C, 4));
 						  
 				-- These digits are not applicable.
-				whole_tens_digit <= "0000";
-				whole_ones_digit <= "0000";
+			whole_tens_digit <= "0000";
+			whole_ones_digit <= "0000";
 				
 		  -- Input the error code 99999 as an out-of-range error.
-        ELSE
-				whole_tens_digit    <= "1111";
-				whole_ones_digit    <= "1111";
-				hundreds_digit      <= "1111";
-            tens_digit 		     <= "1111";
-            ones_digit 		     <= "1111";
-        END IF;
-    END PROCESS;
+		ELSE
+			hundred_thousands_digit <= "1111";
+			ten_thousands_digit <= "1111";
+			thousands_digit <= "1111";
+			hundreds_digit <= "1111";
+			tens_digit <= "1111";
+         ones_digit <= "1111";
+		END IF;
+	END PROCESS;
+	
+	U_BCD_Hundred_Thousands: ENTITY WORK.bcd_7segment
+		PORT MAP 
+		(
+			bcd_in => hundred_thousands_digit,
+         seven_segment_out => hundred_thousands_display
+      );
 	 
 	 -- A BCD to 7-segment display decoder is instantiated
 	 -- to take in the tens digit for a fractional division result 
 	 -- and display it.
-    U_BCD_Whole_Tens: ENTITY WORK.bcd_7segment
-        PORT MAP 
-		  (
-            bcd_in => whole_tens_digit,
-            seven_segment_out => whole_tens_display
-        );
+	U_BCD_Ten_Thousands: ENTITY WORK.bcd_7segment
+		PORT MAP 
+		(
+			bcd_in => ten_thousands_digit,
+         seven_segment_out => ten_thousands_display
+      );
 	 
 	 -- A BCD to 7-segment display decoder is instantiated
 	 -- to take in the ones digit for a fractional division result
 	 -- and display it.
-    U_BCD_Whole_Ones: ENTITY WORK.bcd_7segment
-        PORT MAP 
-		  (
-            bcd_in => whole_ones_digit,
-            seven_segment_out => whole_ones_display
-        );
+	U_BCD_Thousands: ENTITY WORK.bcd_7segment
+		PORT MAP 
+		(
+			bcd_in => thousands_digit,
+			seven_segment_out => thousands_display
+       );
 	 
 	 -- A BCD to 7-segment display decoder is instantiated
 	 -- to take in the hundreds digit and display it.
-    U_BCD_Hundreds: ENTITY WORK.bcd_7segment
-        PORT MAP 
-		  (
-            bcd_in => hundreds_digit,
-            seven_segment_out => hundreds_display
-        );
+	U_BCD_Hundreds: ENTITY WORK.bcd_7segment
+		PORT MAP 
+		(
+			bcd_in => hundreds_digit,
+			seven_segment_out => hundreds_display
+		);
 
     -- A BCD to 7-segment display decoder is instantiated
 	 -- to take in the tens digit and display it.
-    U_BCD_Tens: ENTITY WORK.bcd_7segment
-        PORT MAP 
-		  (
-            bcd_in => tens_digit,
-            seven_segment_out => tens_display
-        );
+	U_BCD_Tens: ENTITY WORK.bcd_7segment
+		PORT MAP 
+		(
+			bcd_in => tens_digit,
+			seven_segment_out => tens_display
+		);
 
     -- A BCD to 7-segment display decoder is instantiated
 	 -- to take in the ones digit and display it.
-    U_BCD_Ones: ENTITY WORK.bcd_7segment
-        PORT MAP
-		  (
-            bcd_in => ones_digit,
-            seven_segment_out => ones_display
-        );
+	U_BCD_Ones: ENTITY WORK.bcd_7segment
+		PORT MAP
+		(
+			bcd_in => ones_digit,
+			seven_segment_out => ones_display
+		);
 		  
 END Structural;

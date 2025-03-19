@@ -16,15 +16,14 @@ ENTITY input_controller IS
 		user_data : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
 		operand_a : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 		operand_b : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
-		opcode : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+		op_code : OUT STD_LOGIC_VECTOR(9 DOWNTO 0)
 	);
 END input_controller;
 
 ARCHITECTURE Behavioral OF input_controller IS
 	TYPE state IS (IDLE, LOAD_OPERAND_A, LOAD_OPERAND_B, LOAD_OPCODE);
 	SIGNAL current_state, next_state : state;
-	
-	SIGNAL operand_a_reg, operand_b_reg, opcode_reg : STD_LOGIC_VECTOR(9 DOWNTO 0);
+	SIGNAL operand_a_reg, operand_b_reg, op_code_reg : STD_LOGIC_VECTOR(9 DOWNTO 0);
 BEGIN
 	PROCESS(clock, reset)
 	BEGIN
@@ -65,6 +64,6 @@ BEGIN
 	
 	operand_a <= operand_a_reg;
 	operand_b <= operand_b_reg;
-	opcode <= opcode_reg;
+	op_code <= op_code_reg;
 	
 END Behavioral;

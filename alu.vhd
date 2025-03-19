@@ -16,7 +16,7 @@ ENTITY alu IS
 	   confirm : IN STD_LOGIC;
       operand_a : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
 		operand_b : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		opcode : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		op_code : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
       result_out : OUT STD_LOGIC_VECTOR(19 DOWNTO 0) 
     );
 END alu;
@@ -34,25 +34,15 @@ ARCHITECTURE Behavioral OF alu IS
 		
     -- The operands and the operator are defined here to
 	 -- be signals for the logic to work with.
-    SIGNAL input_A: 
-	     UNSIGNED(
-		      9 DOWNTO 0
-		  );
-    SIGNAL input_B: 
-	     UNSIGNED(
-		      9 DOWNTO 0
-		  );
-    SIGNAL operator : 
-	     STD_LOGIC_VECTOR(
-		      9 DOWNTO 0
-		  );
+    SIGNAL input_A : UNSIGNED(9 DOWNTO 0);
+    SIGNAL input_B : UNSIGNED(9 DOWNTO 0);
+    SIGNAL operator : STD_LOGIC_VECTOR(9 DOWNTO 0);
     
     -- The computed result has signals here that
 	 -- handle it. Results vary from -15 to 1500.
-    SIGNAL result_int   : 
-	     INTEGER RANGE -999999 TO 999999;
-    SIGNAL alu_register : 
-	     INTEGER RANGE -999999 TO 999999;
+    SIGNAL result_int : INTEGER RANGE -999999 TO 999999;
+    SIGNAL alu_register : INTEGER RANGE -999999 TO 999999;
+	 
 BEGIN
 
     -- The user inputs are mapped here to the
@@ -61,27 +51,21 @@ BEGIN
 		  
     input_B <= UNSIGNED(operand_B);
 		  
-    operator <= opcode;
+    operator <= op_code;
 
     -- A combinational process is used here to calculate the
 	 -- ALU result (multiplexer).
-    PROCESS(
-	     input_A, 
-		  input_B, 
-		  operator
-		  )
+    PROCESS(input_A, input_B, operator)
     BEGIN
         CASE operator IS
 		  
 				-- This is the case for addition: A + B.
             WHEN "0000000000" =>
-                result_int <= 
-				        TO_INTEGER(input_A) + TO_INTEGER(input_B);
+                result_int <= TO_INTEGER(input_A) + TO_INTEGER(input_B);
 					 
 				-- This is the case for subtraction: A - B.
             WHEN "0000000001" =>       
-                result_int <= 
-							TO_INTEGER(input_A) - TO_INTEGER(input_B);
+                result_int <= TO_INTEGER(input_A) - TO_INTEGER(input_B);
                 
 				-- This is the case for multiplication: A * B.
             WHEN "0000000010" =>
@@ -130,11 +114,6 @@ BEGIN
 
     -- The ALU result is output as a 12-bit binary number.
 	 -- This number is prioritized to be output as an integer.
-    result_out <= 
-	     STD_LOGIC_VECTOR(
-	         TO_SIGNED(
-		          alu_register, 20
-				)
-		  );
+    result_out <= STD_LOGIC_VECTOR(TO_SIGNED(alu_register, 20));
 
 END Behavioral;
