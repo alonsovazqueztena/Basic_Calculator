@@ -1,6 +1,6 @@
 -- Alonso Vazquez Tena
--- February 26, 2025
--- Milestone 3: Embedded Application Release 2
+-- March 19, 2025
+-- Milestone 4: Embedded Application Release 3
 -- This is my own work.
 
 LIBRARY IEEE;
@@ -12,18 +12,12 @@ USE IEEE.NUMERIC_STD.all;
 ENTITY alu IS
     PORT
 	 (
-        clock           : 
-		      IN  STD_LOGIC;
-        confirm         : 
-			   IN  STD_LOGIC;
-        user_inputs     : 
-			   IN  STD_LOGIC_VECTOR(
-				    9 DOWNTO 0
-				    );
-        binary_outputs  : 
-		      OUT STD_LOGIC_VECTOR(
-				    11 DOWNTO 0
-				    ) 
+		clock : IN STD_LOGIC;
+	   confirm : IN STD_LOGIC;
+      operand_a : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		operand_b : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		opcode : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+      result_out : OUT STD_LOGIC_VECTOR(19 DOWNTO 0) 
     );
 END alu;
 
@@ -42,45 +36,32 @@ ARCHITECTURE Behavioral OF alu IS
 	 -- be signals for the logic to work with.
     SIGNAL input_A: 
 	     UNSIGNED(
-		      3 DOWNTO 0
+		      9 DOWNTO 0
 		  );
     SIGNAL input_B: 
 	     UNSIGNED(
-		      3 DOWNTO 0
+		      9 DOWNTO 0
 		  );
     SIGNAL operator : 
 	     STD_LOGIC_VECTOR(
-		      1 DOWNTO 0
+		      9 DOWNTO 0
 		  );
     
     -- The computed result has signals here that
 	 -- handle it. Results vary from -15 to 1500.
     SIGNAL result_int   : 
-	     INTEGER RANGE -15 TO 1500;
+	     INTEGER RANGE -999999 TO 999999;
     SIGNAL alu_register : 
-	     INTEGER RANGE -15 TO 1500;
+	     INTEGER RANGE -999999 TO 999999;
 BEGIN
 
     -- The user inputs are mapped here to the
 	 -- operands and the operator.
-    input_A <= 
-	     UNSIGNED(
-		      user_inputs(
-				    3 DOWNTO 0
-				)
-		  );
+    input_A <= UNSIGNED(operand_A);
 		  
-    input_B <= 
-	     UNSIGNED(
-		      user_inputs(
-				    7 DOWNTO 4
-				)
-		  );
+    input_B <= UNSIGNED(operand_B);
 		  
-    operator  <= 
-		  user_inputs(
-		      9 DOWNTO 8
-			);
+    operator <= opcode;
 
     -- A combinational process is used here to calculate the
 	 -- ALU result (multiplexer).
@@ -93,23 +74,23 @@ BEGIN
         CASE operator IS
 		  
 				-- This is the case for addition: A + B.
-            WHEN "00" =>
+            WHEN "0000000000" =>
                 result_int <= 
 				        TO_INTEGER(input_A) + TO_INTEGER(input_B);
 					 
 				-- This is the case for subtraction: A - B.
-            WHEN "01" =>       
+            WHEN "0000000001" =>       
                 result_int <= 
 							TO_INTEGER(input_A) - TO_INTEGER(input_B);
                 
 				-- This is the case for multiplication: A * B.
-            WHEN "10" =>
+            WHEN "0000000010" =>
                 result_int <= TO_INTEGER(input_A) * TO_INTEGER(input_B);
 				
 				-- This is the case for division: A / B (rounded 
 				-- down to the nearest integer if a decimal 
 				-- result is given).
-            WHEN "11" =>
+            WHEN "0000000011" =>
 				
 					 -- In the case that the math expression results in
 					 -- a division by zero, output an error code.
@@ -149,10 +130,10 @@ BEGIN
 
     -- The ALU result is output as a 12-bit binary number.
 	 -- This number is prioritized to be output as an integer.
-    binary_outputs <= 
+    result_out <= 
 	     STD_LOGIC_VECTOR(
 	         TO_SIGNED(
-		          alu_register, 12
+		          alu_register, 20
 				)
 		  );
 

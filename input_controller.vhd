@@ -1,3 +1,8 @@
+-- Alonso Vazquez Tena
+-- March 19, 2025
+-- Milestone 4: Embedded Application Release 3
+-- This is my own work.
+
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
