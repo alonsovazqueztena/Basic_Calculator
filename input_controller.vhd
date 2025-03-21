@@ -29,37 +29,34 @@ BEGIN
 	BEGIN
 		IF reset = '1' THEN
 			current_state <= IDLE;
-		ELSIF RISING_EDGE(clk) THEN
-			current_state <= next_state;
+			operand_a_reg <= (others => '0');
+			operand_b_reg <= (others => '0');
+			op_code_reg   <= (others => '0');
+		ELSIF RISING_EDGE(clock) THEN
+			CASE current_state IS
+				WHEN IDLE =>
+					-- Transition to first load state.
+					current_state <= LOAD_OPERAND_A;
+					
+				WHEN LOAD_OPERAND_A =>
+					IF load = '1' THEN
+						operand_a_reg <= user_data;
+						current_state <= LOAD_OPERAND_B;
+					END IF;
+					
+				WHEN LOAD_OPERAND_B =>
+					IF load = '1' THEN
+						operand_b_reg <= user_data;
+						current_state <= LOAD_OPCODE;
+					END IF;
+					
+				WHEN LOAD_OPCODE =>
+					IF load = '1' THEN
+						op_code_reg <= user_data;
+						current_state <= IDLE;
+					END IF;
+			END CASE;
 		END IF;
-	END PROCESS;
-	
-	PROCESS(current_state, load)
-	BEGIN
-		next_state <= current_state;
-		
-		CASE current_state IS
-			WHEN IDLE =>
-				next_state <= LOAD_OPERAND_A;
-				
-			WHEN LOAD_OPERAND_A =>
-				IF load = '1' THEN
-					operand_a_reg <= user_data;
-					next_state <= LOAD_OPERAND_B;
-				END IF;
-				
-			WHEN LOAD_OPERAND_B =>
-				IF load = '1' THEN
-					operand_b_reg <= user_data;
-					next_state <= LOAD_OPCODE;
-				END IF;
-				
-			WHEN LOAD_OPCODE =>
-				IF load = '1' THEN
-					opcode_reg <= user_data;
-					next_state <= IDLE;
-				END IF;
-		END CASE;
 	END PROCESS;
 	
 	operand_a <= operand_a_reg;

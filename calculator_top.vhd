@@ -84,6 +84,13 @@ BEGIN
 		  -- digits of the ALU result.
 		VARIABLE A, B, C, D, E, F, WHOLE, FRACTION : INTEGER;
 	BEGIN
+	
+		hundred_thousands_digit <= "0000";
+		ten_thousands_digit <= "0000";
+		thousands_digit <= "0000";
+		hundreds_digit <= "0000";
+		tens_digit <= "0000";
+		ones_digit <= "0000";
 	 
 	     -- In the case that division was performed, undo
 		  -- the multiplication to take in the whole component
@@ -102,7 +109,7 @@ BEGIN
 				
 				-- If the whole component of the result is less than 10,
 				-- mark the tens digit as 0, and only display the ones digit.
-			IF WHOLE < 10 THEN
+			ELSIF WHOLE < 10 THEN
 				hundred_thousands_digit <= "0000";
 				ten_thousands_digit <= "0000";		
 				A := WHOLE;
