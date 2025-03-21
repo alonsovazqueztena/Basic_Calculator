@@ -19,7 +19,7 @@ ENTITY calculator_top IS
 		load : IN STD_LOGIC;
 		reset : IN STD_LOGIC;
       user_inputs : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		binary_outputs : OUT STD_LOGIC_VECTOR(19 DOWNTO 0);
+		-- binary_outputs : OUT STD_LOGIC_VECTOR(19 DOWNTO 0);
       ones_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
       tens_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
 		hundreds_display : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
@@ -74,7 +74,7 @@ BEGIN
 	 
 	 -- The ALU result is driven through the LED output.
 	 -- Only integer values 0-1023 are correctly displayed.
-	binary_outputs <= STD_LOGIC_VECTOR(TO_SIGNED(alu_output_int, 20));
+	-- binary_outputs <= STD_LOGIC_VECTOR(TO_SIGNED(alu_output_int, 20));
 
     -- A process to convert the ALU result to
 	 -- BCD is performed here.
