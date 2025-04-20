@@ -1,29 +1,25 @@
 -- Alonso Vazquez Tena
--- February 26, 2025
--- Milestone 3: Embedded Application Release 2
+-- April 20, 2025
+-- Milestone 4: Embedded Application Release 3
 -- This is my own work.
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.all;
 
--- The entity is defined to have a clock, a confirmation,
--- user inputs, and binary outputs.
+-- The entity is defined to have a clock, a reset,
+-- a confirm, user inputs (operands A and B,
+-- and operation code), and binary outputs (calculation result).
 ENTITY alu IS
     PORT
 	 (
-        clock           : 
-		      IN  STD_LOGIC;
-        confirm         : 
-			   IN  STD_LOGIC;
-        user_inputs     : 
-			   IN  STD_LOGIC_VECTOR(
-				    9 DOWNTO 0
-				    );
-        binary_outputs  : 
-		      OUT STD_LOGIC_VECTOR(
-				    11 DOWNTO 0
-				    ) 
+		clock : IN STD_LOGIC;
+		reset : IN STD_LOGIC;
+	   confirm : IN STD_LOGIC;
+      operand_a : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		operand_b : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		op_code : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+      result_out : OUT STD_LOGIC_VECTOR(20 DOWNTO 0) 
     );
 END alu;
 
@@ -40,76 +36,44 @@ ARCHITECTURE Behavioral OF alu IS
 		
     -- The operands and the operator are defined here to
 	 -- be signals for the logic to work with.
-    SIGNAL input_A: 
-	     UNSIGNED(
-		      3 DOWNTO 0
-		  );
-    SIGNAL input_B: 
-	     UNSIGNED(
-		      3 DOWNTO 0
-		  );
-    SIGNAL operator : 
-	     STD_LOGIC_VECTOR(
-		      1 DOWNTO 0
-		  );
+    SIGNAL input_A : UNSIGNED(9 DOWNTO 0);
+    SIGNAL input_B : UNSIGNED(9 DOWNTO 0);
+    SIGNAL operator : STD_LOGIC_VECTOR(9 DOWNTO 0);
     
     -- The computed result has signals here that
-	 -- handle it. Results vary from -15 to 1500.
-    SIGNAL result_int   : 
-	     INTEGER RANGE -15 TO 1500;
-    SIGNAL alu_register : 
-	     INTEGER RANGE -15 TO 1500;
+	 -- handle it. Results vary from -999999 to 999999.
+    SIGNAL result_int : INTEGER RANGE -999999 TO 999999;
+    SIGNAL alu_register : INTEGER RANGE -999999 TO 999999;
+	 
 BEGIN
-
     -- The user inputs are mapped here to the
 	 -- operands and the operator.
-    input_A <= 
-	     UNSIGNED(
-		      user_inputs(
-				    3 DOWNTO 0
-				)
-		  );
-		  
-    input_B <= 
-	     UNSIGNED(
-		      user_inputs(
-				    7 DOWNTO 4
-				)
-		  );
-		  
-    operator  <= 
-		  user_inputs(
-		      9 DOWNTO 8
-			);
+    input_A <= UNSIGNED(operand_A);
+    input_B <= UNSIGNED(operand_B);
+    operator <= op_code;
 
     -- A combinational process is used here to calculate the
 	 -- ALU result (multiplexer).
-    PROCESS(
-	     input_A, 
-		  input_B, 
-		  operator
-		  )
+    PROCESS(input_A, input_B, operator)
     BEGIN
         CASE operator IS
 		  
 				-- This is the case for addition: A + B.
-            WHEN "00" =>
-                result_int <= 
-				        TO_INTEGER(input_A) + TO_INTEGER(input_B);
+            WHEN "0000000000" =>
+                result_int <= TO_INTEGER(input_A) + TO_INTEGER(input_B);
 					 
 				-- This is the case for subtraction: A - B.
-            WHEN "01" =>       
-                result_int <= 
-							TO_INTEGER(input_A) - TO_INTEGER(input_B);
+            WHEN "0000000001" =>       
+                result_int <= TO_INTEGER(input_A) - TO_INTEGER(input_B);
                 
 				-- This is the case for multiplication: A * B.
-            WHEN "10" =>
+            WHEN "0000000010" =>
                 result_int <= TO_INTEGER(input_A) * TO_INTEGER(input_B);
 				
 				-- This is the case for division: A / B (rounded 
 				-- down to the nearest integer if a decimal 
 				-- result is given).
-            WHEN "11" =>
+            WHEN "0000000011" =>
 				
 					 -- In the case that the math expression results in
 					 -- a division by zero, output an error code.
@@ -128,32 +92,26 @@ BEGIN
     END PROCESS;
 
 	 -- This allows for a synchronous process for the ALU.
-	 -- The result is latches on the rising edge of the clock.
-    PROCESS(clock)
+	 -- The result is latches on the rising edge of the clock
+	 -- when the confirmation is high (1).
+    PROCESS(clock, reset)
     BEGIN
-		  -- If the rising edge of the clock is high, then
-		  -- there already is an ALU result stored.
-        IF RISING_EDGE(clock) THEN
-		  
-			   -- Pressing the confirmation button allows for the 
-				-- result to be reset back to 0.
-            IF confirm = '1' THEN
-                alu_register <= 0;
-					 
-				-- Otherwise, the result remains in the system.
-            ELSE
-                alu_register <= result_int;
-            END IF;
-        END IF;
+		  -- If the reset is high (1), the output is reset.
+        IF reset = '1' THEN
+				alu_register <= 0;
+		  ELSIF RISING_EDGE(clock) THEN
+				-- If the confirmation is high (1), the
+				-- result is updated.
+			   IF confirm = '1' THEN
+					alu_register <= result_int;
+				ELSE
+					alu_register <= alu_register;
+				END IF;
+		  END IF;
     END PROCESS;
 
-    -- The ALU result is output as a 12-bit binary number.
+    -- The ALU result is output as a 21-bit binary number.
 	 -- This number is prioritized to be output as an integer.
-    binary_outputs <= 
-	     STD_LOGIC_VECTOR(
-	         TO_SIGNED(
-		          alu_register, 12
-				)
-		  );
+    result_out <= STD_LOGIC_VECTOR(TO_SIGNED(alu_register, 21));
 
 END Behavioral;
