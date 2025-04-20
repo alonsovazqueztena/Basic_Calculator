@@ -1,6 +1,6 @@
 -- Alonso Vazquez Tena
--- February 26, 2025
--- Milestone 3: Embedded Application Release 2
+-- April 20, 2025
+-- Milestone 4: Embedded Application Release 3
 -- This was provided by an in-class activity (Activity 2).
 
 LIBRARY IEEE;
@@ -27,7 +27,6 @@ BEGIN
 	
 	-- A process is started to where every variable is one bit.
 	PROCESS(bcd_in)
-	
 		VARIABLE A : STD_LOGIC;
 		VARIABLE B : STD_LOGIC;
 		VARIABLE C : STD_LOGIC;
