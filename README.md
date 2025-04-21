@@ -1,6 +1,6 @@
 # Basic Calculator
 
-The **Basic Calculator** is a project created for use on the **Terasic DE-10 Standard board**. It utilizes an ALU circuit to perform common mathematical operations (addition, subtraction, multiplication, and division) based on user inputs. The result is displayed in both binary and integer formats.
+The **Basic Calculator** is a project created for use on the **Terasic DE-10 Standard board**. It utilizes an ALU circuit to perform common mathematical operations (addition, subtraction, multiplication, and division). The result is displayed in both binary and integer formats.
 
 ## Overview
 
@@ -11,9 +11,17 @@ This project demonstrates the implementation of digital arithmetic operations us
 - **ALU Circuit**
   - Implements logic for an adder, subtractor, multiplier, or divider.
   - The operation is selected using a two-bit operator.
-  - Accepts two 4-bit inputs for the calculation.
+  - Accepts two 10-bit inputs for the calculation.
+  - Utilizes synchronous flip-flop like logic for results handling.
   - Uses behavioral modeling.
   - Represents a multiplexer.
+ 
+- **Input Controller**
+  - Implements logic to store operands A and B, and the operator code.
+  - A state machine is utilized to advance between storing a specific input.
+  - Can reset all the inputs.
+  - Utilizes synchronous flip-flop like logic.
+  - Uses behavioral modeling.
 
 - **BCD-to-7-Segment Display Decoder**
   - Converts a BCD digit into signals for a 7-segment display.
@@ -23,7 +31,7 @@ This project demonstrates the implementation of digital arithmetic operations us
  
 - **Top Calculator Entity**
   - Establishes ports that will be assigned pins for circuit functionality.
-  - Creates 1 ALU and 5 BCD-to-7-Segment Display Decoders (for display of each digit or sign).
+  - Creates 1 ALU, 1 input controller, and 6 BCD-to-7-Segment Display Decoders (for display of each digit or sign).
   - Holds logic necessary for the circuits to work together (converting inputs and ouputs).
   - Uses structural modeling.
 
@@ -31,17 +39,18 @@ This project demonstrates the implementation of digital arithmetic operations us
 
 - **Inputs**
   - **10 Switches:**  
-    - 4 switches (6-9) for the first 4-bit operand.
-    - 4 switches (2-5) for the second 4-bit operand.
+    - All 10 switches for inputting any of the operands (A and B).
     - 2 switches (0-1) for selecting the two-bit operator.
   - **1 Clock:**  
-    - Provides the clock signal for the synchronous ALU process.
-  - **1 Key Button:**  
-    - Used to confirm and latch the calculation result.
+    - Provides the clock signal for the synchronous ALU and input controller process.
+  - **3 Key Buttons:**  
+    - Key button 0: Used to load in the operand/operator code.
+    - Key button 1: Used to reset the calculation (resets all operands, operator code, and results stored in registers).
+    - Key button 2: Used to confirm the calculation for display.
 
 - **Outputs**
-  - **5 7-Segment Displays:**  
-    - Display calculation results in the range of -15 to 1500 (integer form).
+  - **6 7-Segment Displays:**  
+    - Display calculation results in the range of -999999 to 999999.
     - Displays special signs (negative, fraction).
   - **10 LED Lights:**  
     - Show the calculation results and error codes in binary form.
