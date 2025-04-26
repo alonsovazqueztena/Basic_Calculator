@@ -35,6 +35,7 @@ This project demonstrates the implementation of digital arithmetic operations us
   - Establishes ports that will be assigned pins for circuit functionality.
   - Creates 1 ALU, 1 input controller, and 6 BCD-to-7-Segment Display Decoders (for display of each digit or sign).
   - Holds logic necessary for the circuits to work together (converting inputs and ouputs).
+  - Contains error handling for division by zero, overflow, and unexpected errors.
   - Uses structural modeling.
 
 ## Board Interfaces
