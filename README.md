@@ -2,11 +2,14 @@
 
 ![Calculator picture](calculator_pic.jpeg)
 
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Components and Implementation](#components-and-implementation)
+- [Board Interface](#board-interface)
+
+## Project Overview
+
 The **Basic Calculator** is a project created for use on the **Terasic DE-10 Standard board**. It utilizes an ALU circuit to perform common mathematical operations (addition, subtraction, multiplication, and division). The result is displayed in both binary and integer formats.
-
-## Overview
-
-This project demonstrates the implementation of digital arithmetic operations using an ALU and the display of results through 7-segment displays and LED lights.
 
 ## Components and Implementation
 
@@ -38,7 +41,7 @@ This project demonstrates the implementation of digital arithmetic operations us
   - Contains error handling for division by zero, overflow, and unexpected errors.
   - Uses structural modeling.
 
-## Board Interfaces
+## Board Interface
 
 - **Inputs**
   - **10 Switches:**  
