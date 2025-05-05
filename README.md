@@ -15,11 +15,11 @@
 
 The **Basic Calculator** is a project created for use on the **Terasic DE-10 Standard board**. It utilizes an ALU circuit to perform common mathematical operations (addition, subtraction, multiplication, and division). The result is displayed in both binary and integer formats.
 
---
+---
 
 ## Key Features
 
---
+---
 
 ## Components and Implementation
 
@@ -51,7 +51,7 @@ The **Basic Calculator** is a project created for use on the **Terasic DE-10 Sta
   - Contains error handling for division by zero, overflow, and unexpected errors.
   - Uses structural modeling.
 
---
+---
 
 ## Board Interface
 
@@ -74,7 +74,7 @@ The **Basic Calculator** is a project created for use on the **Terasic DE-10 Sta
     - Show the calculation results and error codes in binary form.
     - Handles values from 0 to 1023.
    
---
+---
 
 ## Contributing
 
@@ -90,7 +90,7 @@ git checkout -b feature/new-tracker
 - Complete concise commenting
 - 80%+ test coverage
 
---
+---
 
 ## License
 MIT License - See LICENSE for details
