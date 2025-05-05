@@ -2,7 +2,7 @@
 
 ## Table of Contents
 - [Project Overview](#project-overview)
-- [Diagrams](#diagrams)
+- [System Design](#system-design)
 - [Components and Implementation](#components-and-implementation)
 - [Board Interface](#board-interface)
 - [Contributing](#contributing)
@@ -17,15 +17,13 @@
 
 The **Basic Calculator** is a project created for use on the **Terasic DE-10 Standard board**. It utilizes an ALU circuit to perform common mathematical operations (addition, subtraction, multiplication, and division). The result is displayed in both binary and integer formats.
 
+[Demo video](https://drive.google.com/file/d/1-F1z5bxSZEJgCaIjWOuw4uUvEdqq6S4K/view?usp=sharing)
+
 ---
 
-## Diagrams
+## System Design
 
-### System Diagram
-
-### Circuit Diagrams
-
-### Flowcharts
+![System design diagram](calculator_system_design.png)
 
 ---
 
@@ -103,7 +101,7 @@ git checkout -b feature/new-tracker
 ## License
 MIT License - See LICENSE for details
 
---
+---
 
 ## Maintainers
-- Alonso Vazquez Tena: Creator
+- Alonso Vazquez Tena: Developer
