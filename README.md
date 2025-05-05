@@ -6,6 +6,9 @@
 - [Project Overview](#project-overview)
 - [Components and Implementation](#components-and-implementation)
 - [Board Interface](#board-interface)
+- [Contributing](#contributing)
+- [License](#license)
+- [Maintainers](#maintainers)
 
 ## Project Overview
 
@@ -61,3 +64,23 @@ The **Basic Calculator** is a project created for use on the **Terasic DE-10 Sta
   - **10 LED Lights:**  
     - Show the calculation results and error codes in binary form.
     - Handles values from 0 to 1023.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch:
+```bash
+git checkout -b feature/new-tracker
+```
+3. Add tests for new functionality
+4. Submit a pull request
+
+### Coding Standards
+- Complete concise commenting
+- 80%+ test coverage
+
+## License
+MIT License - See LICENSE for details
+
+## Maintainers
+- Alonso Vazquez Tena: Creator
